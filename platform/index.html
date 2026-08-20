@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No-Resume Skill Market — докажите навыки в реальном времени</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════ ХЕДЕР ═══════════════════ -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo" onclick="App.go('landing')">
+        <span class="logo-icon">⚡</span>
+        <span><strong>No-Resume</strong> Skill Market</span>
+      </div>
+      <nav class="main-nav">
+        <button class="nav-btn active" data-view="landing">Главная</button>
+        <button class="nav-btn" data-view="candidate">Соискатель</button>
+        <button class="nav-btn" data-view="employer">Работодатель</button>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switcher" id="langSwitcher">
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="de">DE</button>
+        </div>
+        <button class="btn btn-ghost" id="btnDemoCandidate">Я соискатель</button>
+        <button class="btn btn-primary" id="btnDemoEmployer">Я работодатель</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══════════════ ЛЕНДИНГ ═══════════════ -->
+    <section id="view-landing" class="view active">
+      <!-- Hero -->
+      <div class="hero">
+        <div class="container">
+          <div class="hero-badge">🚫 Резюме отменено · ИИ-верификация навыков</div>
+          <h1>Забудьте про резюме.<br/>Докажите навыки <span class="gradient-text">в реальном времени</span>.</h1>
+          <p class="hero-sub">
+            Интерактивный маркетплейс, где кандидаты решают геймифицированные ИИ-тесты,
+            а компании видят прозрачную матрицу совпадения от 0 до 100%.
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" id="heroStartTest">Начать бесплатный тест →</button>
+            <button class="btn btn-outline btn-lg" id="heroEmployer">Для работодателей</button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat"><div class="stat-num">0<small>%</small></div><div class="stat-label">шаблонных CV</div></div>
+            <div class="stat"><div class="stat-num">−40<small>%</small></div><div class="stat-label">«мертвых» вакансий</div></div>
+            <div class="stat"><div class="stat-num">100<small>%</small></div><div class="stat-label">прозрачный скоринг</div></div>
+            <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">ИИ-фидбек</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Проблема -->
+      <div class="section container">
+        <h2 class="section-title">🛑 Проблемы рынка, который мы ломаем</h2>
+        <div class="cards-grid problems">
+          <div class="card problem-card">
+            <div class="problem-emoji">🤖💥</div>
+            <h3>ИИ-спам резюме</h3>
+            <p>Кандидаты генерируют сотни «идеальных» CV через ChatGPT. HR тонет в одинаковых текстах, не видя реального уровня.</p>
+          </div>
+          <div class="card problem-card">
+            <div class="problem-emoji">🪦</div>
+            <h3>«Мёртвые» вакансии</h3>
+            <p>До 40% позиций на агрегаторах неактуальны. Кандидаты тратят недели на пустые отклики.</p>
+          </div>
+          <div class="card problem-card">
+            <div class="problem-emoji">🎲</div>
+            <h3>Субъективный скоринг</h3>
+            <p>«Junior/Middle/Senior» — размытые ярлыки. Senior в одной компании — Mid в другой.</p>
+          </div>
+          <div class="card problem-card">
+            <div class="problem-emoji">👻</div>
+            <h3>Призрачный фидбек</h3>
+            <p>90% кандидатов получают сухой отказ без объяснений и точек роста.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Решение -->
+      <div class="solution-band">
+        <div class="container">
+          <h2 class="section-title light">Ключевые модули платформы</h2>
+          <div class="modules-grid">
+            <div class="module-card">
+              <div class="module-icon">🚫</div>
+              <h3>Zero Resume</h3>
+              <p>Вход по живой активности: GitHub, Behance, Figma, Kaggle. Вакансии авто-актуализируются каждые 7 дней через бота и синхронизацию с ATS.</p>
+            </div>
+            <div class="module-card">
+              <div class="module-icon">🧠</div>
+              <h3>Онлайн-промптинг</h3>
+              <p>Уникальные кейсы генерируются LLM под стек компании в секунду старта. Оценивается глубина понимания, точность промптов и защита от галлюцинаций.</p>
+            </div>
+            <div class="module-card">
+              <div class="module-icon">🎮</div>
+              <h3>Трёхмерная геймификация</h3>
+              <p>Текстовые симуляции клиентов, Coding Live-экран с ИИ-копилотом и Visual-аудит макетов.</p>
+            </div>
+            <div class="module-card">
+              <div class="module-icon">📊</div>
+              <h3>Динамический скоринг 0–100%</h3>
+              <p>Работодатель выставляет веса ползунками, алгоритм мгновенно сопоставляет карту навыков кандидата с матрицей вакансии.</p>
+            </div>
+            <div class="module-card">
+              <div class="module-icon">📈</div>
+              <h3>ИИ-фидбек вместо отказов</h3>
+              <p>Персональная карта развития: разбор ошибок, статьи, курсы, репозитории для закрытия пробелов.</p>
+            </div>
+            <div class="module-card">
+              <div class="module-icon">🎠</div>
+              <h3>Карусель офферов</h3>
+              <p>65% в компании А → автоматический мэтч в Б и В, где этот балл — идеальный. Офферы без повторных тестов.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Как это работает -->
+      <div class="container">
+        <h2 class="section-title">⚙️ Как это работает</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h3>Динамический чек-лист</h3>
+            <p>Умная база технологий подсказывает актуальные теги, вы отмечаете галочки — система сразу генерирует тест под ваш набор навыков.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h3>Живой ИИ-тест</h3>
+            <p>Вы общаетесь с ИИ-клиентом, пишете промпты, правите код, находите баги в макетах — ваши действия и есть ваше резюме.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h3>Прозрачный скоринг</h3>
+            <p>Получаете независимый сертификат навыков (Score: 82%) и матрицу совпадения с каждой вакансией.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <h3>Офферы без резюме</h3>
+            <p>Прямые приглашения от компаний + карусель альтернативных офферов, где ваши 65% — идеальный матч.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Бизнес-ценность -->
+      <div class="cta-band">
+        <div class="container">
+          <h2>Давайте очистим рынок труда от белого шума вместе!</h2>
+          <p>Никаких PDF. Только навыки, подтверждённые в реальном времени.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" id="heroStartTest2">Попробовать платформу</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ СОИСКАТЕЛЬ ═══════════════ -->
+    <section id="view-candidate" class="view">
+      <div class="container">
+        <div class="candidate-header">
+          <div>
+            <h1 class="view-title">Кабинет соискателя</h1>
+            <p class="view-subtitle">Без резюме. Только живые навыки и реальный фидбек.</p>
+          </div>
+          <div class="candidate-status">
+            <div class="status-dot"></div>
+            <span>Профиль активен</span>
+          </div>
+        </div>
+
+        <!-- Чек-лист навыков -->
+        <div class="checklist-card card">
+          <div class="card-header-row">
+            <h2><span class="icon-emoji">✅</span> Динамический чек-лист навыков</h2>
+            <span class="badge" id="selectedCount">0 выбрано</span>
+          </div>
+          <p class="muted">База навыков обновляется каждые 7 дней из открытых источников (Kaggle, Google Jobs). Отметьте, что умеете — и ИИ сгенерирует уникальный тест под вас.</p>
+          <div class="custom-skill-row">
+            <input type="text" id="customSkillInput" placeholder="Добавить свой тег (выучили вчера? просто добавьте)" />
+            <button class="btn btn-secondary" id="addCustomSkill">+ Добавить</button>
+          </div>
+          <div class="skill-filters" id="skillFilters"></div>
+          <div class="skills-cloud" id="skillsCloud"></div>
+          <div class="checklist-actions">
+            <button class="btn btn-primary btn-lg" id="startTestBtn" disabled>🚀 Сгенерировать уникальный тест</button>
+            <p class="hint" id="testHint">Выберите хотя бы 1 навык</p>
+          </div>
+        </div>
+
+        <!-- Выбор формата теста -->
+        <div class="format-card card" id="formatCard" style="display: none;">
+          <h2><span class="checkbox-emoji">🎮</span> Выберите формат интерактивного теста</h2>
+          <div class="formats-row" id="formatsRow"></div>
+          <div class="format-actions">
+            <button class="btn btn-primary btn-lg" id="confirmFormatBtn">Начать тест →</button>
+            <button class="btn btn-ghost" id="backToSkills">← Назад к навыкам</button>
+          </div>
+        </div>
+
+        <!-- Тест (контейнер генерируется JS) -->
+        <div id="testContainer"></div>
+
+        <!-- Результаты -->
+        <div id="resultsContainer"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ РАБОТОДАТЕЛЬ ═══════════════ -->
+    <section id="view-employer" class="view">
+      <div class="container">
+        <div class="employer-header">
+          <div>
+            <h1 class="view-title">Кабинет работодателя</h1>
+            <p class="view-subtitle">Настройте идеального кандидата ползунками — и получите прозрачный рейтинг без единого CV.</p>
+          </div>
+          <button class="btn btn-primary" id="addVacancyBtn">+ Новая вакансия</button>
+        </div>
+
+        <!-- Настройка вакансии -->
+        <div class="card vacancy-builder">
+          <h2><span class="checkbox-emoji">⚙️</span> Настройка вакансии: вес навыков</h2>
+          <div class="vacancy-name-row">
+            <input type="text" id="vacancyTitle" value="Backend Engineer / FastAPI" class="from-input vacancy-title-input" />
+            <select id="vacancyCompany" class="form-select"></select>
+          </div>
+          <p class="muted">Двигайте ползунки — задайте идеальный профиль кандидата. Чем выше вес, тем важнее навык.</p>
+          <div id="vacancySliders"></div>
+          <div class="format-actions">
+            <button class="btn btn-primary" id="publishVacancyBtn">💾 Сохранить и опубликовать</button>
+          </div>
+        </div>
+
+        <!-- Дашборд кандидатов -->
+        <div class="card employer-dashboard">
+          <div class="dash-head">
+            <h2><span class="checkbox-emoji">📊</span> Дашборд кандидатов</h2>
+            <div class="dash-filters">
+              <select id="dashCompanyFilter" class="form-select">
+                <option value="all">Все компании</option>
+              </select>
+              <label class="checkbox-inline">
+                <input type="checkbox" id="hideLowMatches" /> Скрыть < 50%
+              </label>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="candidates-table">
+              <thead>
+                <tr>
+                  <th>Кандидат</th>
+                  <th>Компания</th>
+                  <th>Совпадение</th>
+                  <th>Сильные навыки</th>
+                  <th>Статус вакансии</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="candidatesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Детали кандидата (модально) -->
+        <div class="modal-overlay" id="candidateModal" style="display:none;">
+          <div class="modal">
+            <button class="modal-close" id="closeCandidateModal">✕</button>
+            <div id="candidateModalContent"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <span><strong>No-Resume</strong> Skill Market</span>
+      </div>
+      <p>© 2026 · Proof of Skill · Забудьте про резюме</p>
+    </div>
+  </footer>
+
+  <!-- ════════════ Импорт данных и логики ════════════ -->
+  <script src="js/data.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
