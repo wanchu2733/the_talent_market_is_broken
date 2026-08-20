@@ -37,7 +37,13 @@
                 VibeCode Studio
             </h1>
         </div>
-        <span class="text-xs px-2.5 py-1 rounded-full bg-[#2b2d31] text-[#999ab0] border border-[#3f4147]">Gemini-Style Mockup</span>
+        <div class="flex items-center space-x-3">
+            <div id="user-badge" class="hidden text-xs px-2.5 py-1 rounded-full bg-[#1e293b] text-[#93c5fd] border border-[#3b82f6]/30 flex items-center space-x-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span id="user-email-display">user@example.com</span>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-[#2b2d31] text-[#999ab0] border border-[#3f4147]">Gemini-Style Mockup</span>
+        </div>
     </header>
 
     <!-- MAIN 2-COLUMN UI CONTAINER -->
@@ -115,6 +121,18 @@
 
     <!-- INTERACTION LOGIC -->
     <script>
+        // Display verified user email if available
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem('user_email');
+            const isVerified = localStorage.getItem('email_verified') === 'true';
+            const userBadge = document.getElementById('user-badge');
+            const userEmailDisplay = document.getElementById('user-email-display');
+            if (savedEmail && isVerified && userBadge && userEmailDisplay) {
+                userEmailDisplay.textContent = savedEmail;
+                userBadge.classList.remove('hidden');
+            }
+        });
+
         // Empty function for you to implement later as requested
         function onUserSubmit(promptText) {
             console.log("User prompt submitted:", promptText);
