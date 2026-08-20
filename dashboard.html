@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Talent Insights — HR Candidate Assessment Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        gemini: {
+                            bg: '#131314',
+                            card: '#1e1f22',
+                            section: '#282a2d',
+                            border: '#333537',
+                            borderHover: '#444746',
+                            textMuted: '#8e918f',
+                            textSecondary: '#c4c7c5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #131314;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e1f22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444746;
+            border-radius: 3px;
+        }
+        .glow-indigo {
+            box-shadow: 0 0 25px -5px rgba(129, 140, 248, 0.25), 0 0 50px -15px rgba(168, 85, 247, 0.15);
+        }
+        .glow-card {
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .gauge-circle {
+            transition: stroke-dashoffset 1s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .progress-bar-transition {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* JSON Syntax Highlighting */
+        .json-key { color: #93c5fd; }
+        .json-string { color: #86efac; }
+        .json-number { color: #fca5a5; }
+        .json-boolean { color: #fde047; }
+        .json-null { color: #cbd5e1; }
+    </style>
+</head>
+<body class="bg-[#131314] text-[#e3e3e3] min-h-screen flex flex-col antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+
+    <!-- Ambient background gradient accents -->
+    <div class="fixed top-0 left-1/4 w-[600px] h-[350px] bg-gradient-to-tr from-blue-600/10 via-indigo-600/10 to-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-0 right-1/4 w-[500px] h-[300px] bg-gradient-to-br from-emerald-600/5 via-purple-600/5 to-pink-600/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <!-- 1. HEADER BAR -->
+    <header class="sticky top-0 z-30 flex items-center justify-between px-6 py-3.5 border-b border-[#333537] bg-[#1e1f22]/80 backdrop-blur-xl">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+            <!-- Brand Indicator -->
+            <div class="flex items-center space-x-2.5">
+                <div class="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 animate-pulse shadow-lg shadow-purple-500/30"></div>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+                    Vibe Talent Insights
+                </h1>
+            </div>
+            <!-- Subtitle Badge -->
+            <span class="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-[#282a2d] text-[#999ab0] border border-[#383a3f]">
+                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>HR Recruiter View &bull; Hackathon Demo</span>
+            </span>
+        </div>
+
+        <!-- Right Action Controls -->
+        <div class="flex items-center space-x-3">
+            <a href="studio.html" class="hidden md:inline-flex items-center gap-1.5 text-xs text-[#8e918f] hover:text-white px-3 py-1.5 rounded-xl bg-[#282a2d] border border-[#383a3f] transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+                </svg>
+                <span>Candidate Studio</span>
+            </a>
+
+            <button 
+                id="btn-open-modal"
+                onclick="openJsonModal()" 
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white font-medium text-xs sm:text-sm tracking-wide transition-all shadow-md hover:shadow-indigo-500/25 active:scale-95 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                </svg>
+                <span>Load Candidate JSON</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- 2. CANDIDATE SUMMARY BANNER -->
+        <section class="glow-card bg-[#1e1f22] border border-[#333537] rounded-3xl p-5 sm:p-6 transition-all">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                
+                <!-- Left: Candidate Profile Info -->
+                <div class="flex items-center space-x-4">
+                    <div id="candidate-avatar" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-indigo-600/20 flex-shrink-0">
+                        WC
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <h2 id="candidate-email" class="text-lg sm:text-xl font-bold text-white tracking-tight font-mono">
+                                wanchu2733@gmail.com
+                            </h2>
+                            <span id="candidate-status-badge" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="candidate-status-text">High Critical Verification</span>
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#8e918f] mt-1.5">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-[#999ab0]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Challenge Duration: <strong id="banner-time-spent" class="text-[#e3e3e3] font-mono">1h 0m 0s</strong></span>
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-[#999ab0]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                                </svg>
+                                <span>Assessment: <strong class="text-indigo-300">AI-Assisted Debugging & Synthesis</strong></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Quick Action Pill & Score Summary -->
+                <div class="flex items-center gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#333537]">
+                    <div class="px-4 py-2 rounded-2xl bg-[#282a2d] border border-[#383a3f] text-right">
+                        <p class="text-[11px] text-[#8e918f] uppercase tracking-wider font-semibold">Evaluation Status</p>
+                        <p id="banner-verdict" class="text-sm font-bold text-emerald-400">Recommended for Hire</p>
+                    </div>
+                    <button onclick="openJsonModal()" class="px-3 py-2 rounded-2xl bg-[#282a2d] hover:bg-[#333537] border border-[#383a3f] text-xs text-[#c4c7c5] hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                        </svg>
+                        <span>Edit Payload</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. KEY METRICS GRID (4 HIGH-IMPACT STAT CARDS) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            <!-- CARD 1: Credibility Score -->
+            <div class="glow-card bg-[#1e1f22] border border-[#333537] hover:border-[#444746] rounded-3xl p-5 flex flex-col justify-between transition-all duration-300">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#8e918f]">Credibility Score</span>
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-2.18 5.67A9.01 9.01 0 013 12a9 9 0 0118 0 9.01 9.01 0 01-5.07 8.08z"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="flex items-center space-x-4 my-2">
+                    <!-- SVG Circular Progress Gauge -->
+                    <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                        <svg class="w-16 h-16" viewBox="0 0 36 36">
+                            <!-- Background Circle -->
+                            <path class="text-[#282a2d]" stroke-width="3.5" stroke="currentColor" fill="none"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <!-- Progress Circle -->
+                            <path id="gauge-circle-path" class="gauge-circle text-emerald-400" stroke-dasharray="100, 100" stroke-dashoffset="13" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="metric-credibility-gauge" class="text-xs font-bold font-mono text-emerald-300">87%</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div id="metric-credibility-val" class="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">87%</div>
+                        <div id="metric-credibility-tag" class="text-xs font-semibold text-emerald-400">High Human Verification</div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-[#282a2d] text-[11px] text-[#8e918f] flex items-center justify-between">
+                    <span>Benchmark: >80%</span>
+                    <span class="text-emerald-400 font-medium">Top 10% Tier</span>
+                </div>
+            </div>
+
+            <!-- CARD 2: AI Token Consumption -->
+            <div class="glow-card bg-[#1e1f22] border border-[#333537] hover:border-[#444746] rounded-3xl p-5 flex flex-col justify-between transition-all duration-300">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#8e918f]">AI Token Consumption</span>
+                    <span class="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="my-2">
+                    <div id="metric-tokens-val" class="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">2.0M</div>
+                    <div id="metric-tokens-avg" class="text-xs text-purple-300 mt-0.5">125.0K tokens / prompt</div>
+                </div>
+
+                <div class="pt-3 border-t border-[#282a2d] text-[11px] text-[#8e918f] flex items-center justify-between">
+                    <span>Prompt Efficiency</span>
+                    <span class="text-purple-300 font-medium">Rich Context Ingestion</span>
+                </div>
+            </div>
+
+            <!-- CARD 3: Prompt Interaction Count -->
+            <div class="glow-card bg-[#1e1f22] border border-[#333537] hover:border-[#444746] rounded-3xl p-5 flex flex-col justify-between transition-all duration-300">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#8e918f]">Prompt Count</span>
+                    <span class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="my-2">
+                    <div id="metric-prompts-val" class="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">16 Prompts</div>
+                    <div id="metric-prompts-avg" class="text-xs text-blue-300 mt-0.5">Avg ~3m 45s between prompts</div>
+                </div>
+
+                <div class="pt-3 border-t border-[#282a2d] text-[11px] text-[#8e918f] flex items-center justify-between">
+                    <span>Interaction Depth</span>
+                    <span class="text-blue-300 font-medium">Iterative Inquiry</span>
+                </div>
+            </div>
+
+            <!-- CARD 4: Total Challenge Duration -->
+            <div class="glow-card bg-[#1e1f22] border border-[#333537] hover:border-[#444746] rounded-3xl p-5 flex flex-col justify-between transition-all duration-300">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#8e918f]">Total Challenge Time</span>
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="my-2">
+                    <div id="metric-time-val" class="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">60 mins</div>
+                    <div id="metric-time-formatted" class="text-xs text-amber-300 mt-0.5">3600 seconds total</div>
+                </div>
+
+                <div class="pt-3 border-t border-[#282a2d] text-[11px] text-[#8e918f] flex items-center justify-between">
+                    <span>Time Window</span>
+                    <span id="metric-time-window-status" class="text-emerald-400 font-medium">Within 90-min window</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 4. HR DECISION & BREAKDOWN INSIGHTS SECTION -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- LEFT COLUMN (2 Cols): AI-Human Balance Bar & Behavioral Highlights -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- AI-Human Balance Bar Card -->
+                <div class="glow-card bg-[#1e1f22] border border-[#333537] rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <span>AI vs. Human Verification Balance</span>
+                            </h3>
+                            <p class="text-xs text-[#8e918f] mt-0.5">Measures critical code inspection vs. blind copy-paste acceptance.</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-[#282a2d] text-emerald-400 border border-[#383a3f]">
+                            Ratio: <span id="balance-ratio-text">87:13</span>
+                        </span>
+                    </div>
+
+                    <!-- Dual Spectrum Progress Bar -->
+                    <div class="w-full bg-[#131314] h-6 rounded-xl overflow-hidden p-1 border border-[#333537] flex gap-1">
+                        <div id="bar-human-verification" class="progress-bar-transition h-full rounded-lg bg-gradient-to-r from-emerald-500 to-teal-400 flex items-center justify-start px-2 text-[11px] font-bold text-black font-mono shadow-sm" style="width: 87%;">
+                            <span class="truncate">87% Human Verification</span>
+                        </div>
+                        <div id="bar-blind-ai" class="progress-bar-transition h-full rounded-lg bg-gradient-to-r from-purple-600 to-rose-500 flex items-center justify-end px-2 text-[11px] font-bold text-white font-mono shadow-sm" style="width: 13%;">
+                            <span class="truncate">13% Blind</span>
+                        </div>
+                    </div>
+
+                    <!-- Spectrum Labels -->
+                    <div class="grid grid-cols-2 gap-4 mt-4 pt-3 border-t border-[#282a2d]">
+                        <div class="flex items-start space-x-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 mt-1 flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-semibold text-emerald-300">Human Verification (<span id="label-human-pct">87%</span>)</p>
+                                <p class="text-[11px] text-[#8e918f] leading-snug">Candidate reviewed, tested, and altered AI proposals before applying.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-400 mt-1 flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-semibold text-purple-300">Blind AI Reliance (<span id="label-blind-pct">13%</span>)</p>
+                                <p class="text-[11px] text-[#8e918f] leading-snug">Direct prompt-to-commit actions with minimal syntax modification.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Behavioral Highlights List -->
+                <div class="glow-card bg-[#1e1f22] border border-[#333537] rounded-3xl p-6">
+                    <h3 class="text-base font-bold text-white mb-1">Behavioral Highlights & Diagnostic Signals</h3>
+                    <p class="text-xs text-[#8e918f] mb-4">Granular telemetry patterns observed during session.</p>
+
+                    <div class="space-y-3" id="behavioral-highlights-container">
+                        
+                        <!-- Item 1: Verified AI Output -->
+                        <div class="p-4 rounded-2xl bg-[#282a2d]/80 border border-[#383a3f] hover:border-[#444746] transition-all flex items-start space-x-3.5">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0 mt-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold text-white">Verified AI Output</h4>
+                                    <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-950/70 text-emerald-300 border border-emerald-500/30">Verified</span>
+                                </div>
+                                <p class="text-xs text-[#c4c7c5] mt-1 leading-relaxed">
+                                    Tested code and caught asynchronous execution bug before accepting AI solution. Demonstrated strong debugging autonomy.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Item 2: Prompt Quality -->
+                        <div class="p-4 rounded-2xl bg-[#282a2d]/80 border border-[#383a3f] hover:border-[#444746] transition-all flex items-start space-x-3.5">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0 mt-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold text-white">High Prompt Quality & Specificity</h4>
+                                    <span id="badge-prompt-quality" class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-indigo-950/70 text-indigo-300 border border-indigo-500/30">16 Prompts</span>
+                                </div>
+                                <p id="text-prompt-quality" class="text-xs text-[#c4c7c5] mt-1 leading-relaxed">
+                                    Supplied precise architectural context and constraints rather than vague requests, enabling focused AI reasoning loops.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Item 3: Token Overhead -->
+                        <div class="p-4 rounded-2xl bg-[#282a2d]/80 border border-[#383a3f] hover:border-[#444746] transition-all flex items-start space-x-3.5">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 mt-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold text-white">Token Overhead Analysis</h4>
+                                    <span id="badge-token-overhead" class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-amber-950/70 text-amber-300 border border-amber-500/30">2.0M Tokens</span>
+                                </div>
+                                <p id="text-token-overhead" class="text-xs text-[#c4c7c5] mt-1 leading-relaxed">
+                                    High token volume due to large codebase snippets and full file context payloads attached during iterative code generation.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN (1 Col): Recruiter Recommendation Box & Decision Action Panel -->
+            <div class="space-y-6">
+                
+                <!-- Recruiter Recommendation Box -->
+                <div class="glow-card bg-[#1e1f22] border border-[#333537] rounded-3xl p-6 flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span>
+                                AI Recruiter Recommendation
+                            </span>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-purple-950/60 text-purple-300 border border-purple-500/30">Gemini Decision</span>
+                        </div>
+
+                        <!-- Recommendation Content Box -->
+                        <div id="recommendation-box" class="p-4 rounded-2xl bg-gradient-to-b from-indigo-950/30 to-purple-950/20 border border-indigo-500/30 mb-5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span id="rec-icon" class="text-emerald-400 text-base">🟢</span>
+                                <h4 id="rec-headline" class="text-sm font-bold text-white">Strong Candidate — Critical AI User</h4>
+                            </div>
+                            <p id="rec-body" class="text-xs text-[#c4c7c5] leading-relaxed">
+                                Demonstrates deep technical knowledge by catching AI edge-case errors. Uses AI as a productivity amplifier while preserving rigorous architectural oversight.
+                            </p>
+                        </div>
+
+                        <!-- Evaluation Radar / Metrics Summary List -->
+                        <div class="space-y-3">
+                            <p class="text-xs font-semibold text-[#8e918f] uppercase tracking-wider">Evaluation Dimensions</p>
+                            
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-[#c4c7c5]">Critical Thinking</span>
+                                    <span id="score-crit-thinking" class="font-mono text-emerald-400 font-semibold">92/100</span>
+                                </div>
+                                <div class="w-full bg-[#131314] h-2 rounded-full overflow-hidden">
+                                    <div id="bar-crit-thinking" class="bg-emerald-400 h-full rounded-full" style="width: 92%;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-[#c4c7c5]">Prompt Efficiency</span>
+                                    <span id="score-prompt-eff" class="font-mono text-indigo-400 font-semibold">85/100</span>
+                                </div>
+                                <div class="w-full bg-[#131314] h-2 rounded-full overflow-hidden">
+                                    <div id="bar-prompt-eff" class="bg-indigo-400 h-full rounded-full" style="width: 85%;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-[#c4c7c5]">Time Management</span>
+                                    <span id="score-time-mgmt" class="font-mono text-amber-400 font-semibold">88/100</span>
+                                </div>
+                                <div class="w-full bg-[#131314] h-2 rounded-full overflow-hidden">
+                                    <div id="bar-time-mgmt" class="bg-amber-400 h-full rounded-full" style="width: 88%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Step Action Buttons -->
+                    <div class="space-y-2.5 pt-6 mt-6 border-t border-[#282a2d]">
+                        <button onclick="handleAdvanceCandidate()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-semibold text-xs tracking-wide shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            <span>Advance to Technical Interview</span>
+                        </button>
+                        <button onclick="handleExportSummary()" class="w-full py-2.5 px-4 rounded-xl bg-[#282a2d] hover:bg-[#333537] text-[#c4c7c5] hover:text-white border border-[#383a3f] text-xs font-medium transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            <span>Download HR Summary Report</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- 5. RAW JSON INSPECTION ACCORDION (COLLAPSIBLE) -->
+        <section class="glow-card bg-[#1e1f22] border border-[#333537] rounded-3xl overflow-hidden">
+            <button 
+                onclick="toggleRawJsonAccordion()" 
+                class="w-full px-6 py-4 flex items-center justify-between bg-[#1e1f22] hover:bg-[#232428] transition-colors cursor-pointer text-left">
+                <div class="flex items-center space-x-3">
+                    <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                    <h3 class="text-sm font-semibold text-white">Underlying Candidate JSON Payload</h3>
+                    <span class="text-xs text-[#8e918f] font-mono">(Raw Ingested Data)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-xs text-indigo-400">
+                    <span id="accordion-toggle-label">View Payload</span>
+                    <svg id="accordion-icon" class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </div>
+            </button>
+
+            <div id="raw-json-panel" class="hidden p-6 border-t border-[#333537] bg-[#131314]">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-mono text-[#8e918f]">data_payload.json</span>
+                    <button onclick="copyRawJson()" class="text-xs text-indigo-400 hover:text-indigo-300 font-mono flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg>
+                        <span id="copy-json-btn-text">Copy JSON</span>
+                    </button>
+                </div>
+                <pre id="raw-json-display" class="font-mono text-xs text-[#c4c7c5] bg-[#18191c] p-4 rounded-2xl border border-[#333537] overflow-x-auto leading-relaxed"></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto py-6 border-t border-[#333537] bg-[#131314] text-center text-xs text-[#8e918f]">
+        <p>Vibe Talent Insights &bull; AI Evaluation Platform for Technical Recruitment</p>
+    </footer>
+
+    <!-- INTERACTIVE JSON INPUT MODAL / DRAWER -->
+    <div id="json-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden transition-opacity">
+        <div class="relative w-full max-w-xl bg-[#1e1f22] border border-[#383a3f] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 animate-fade-in">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-[#333537] pb-4">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-3 h-3 rounded-full bg-indigo-500 animate-pulse"></span>
+                    <h3 class="text-base sm:text-lg font-bold text-white">Load Candidate JSON Payload</h3>
+                </div>
+                <button onclick="closeJsonModal()" class="text-[#8e918f] hover:text-white p-1 rounded-lg transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Quick Presets -->
+            <div>
+                <p class="text-xs text-[#8e918f] mb-2 font-medium">Quick Demo Presets:</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="loadPreset('critical')" class="text-xs px-3 py-1.5 rounded-xl bg-[#282a2d] hover:bg-[#333537] text-emerald-300 border border-emerald-500/30 transition-colors cursor-pointer">
+                        🟢 Candidate A (Critical / 87%)
+                    </button>
+                    <button type="button" onclick="loadPreset('moderate')" class="text-xs px-3 py-1.5 rounded-xl bg-[#282a2d] hover:bg-[#333537] text-amber-300 border border-amber-500/30 transition-colors cursor-pointer">
+                        🟡 Candidate B (Moderate / 64%)
+                    </button>
+                    <button type="button" onclick="loadPreset('blind')" class="text-xs px-3 py-1.5 rounded-xl bg-[#282a2d] hover:bg-[#333537] text-rose-300 border border-rose-500/30 transition-colors cursor-pointer">
+                        🔴 Candidate C (Blind AI / 38%)
+                    </button>
+                </div>
+            </div>
+
+            <!-- JSON Textarea -->
+            <div>
+                <label for="json-input" class="block text-xs font-semibold text-[#c4c7c5] mb-1.5">JSON Payload</label>
+                <textarea 
+                    id="json-input" 
+                    rows="8" 
+                    class="w-full font-mono text-xs bg-[#131314] border border-[#383a3f] focus:border-indigo-500 rounded-2xl p-4 text-[#e3e3e3] placeholder-[#5e6166] outline-none transition-colors leading-relaxed"></textarea>
+                <p id="modal-error-msg" class="hidden text-xs text-rose-400 mt-2 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span id="modal-error-text">Invalid JSON structure.</span>
+                </p>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <button 
+                    type="button" 
+                    onclick="closeJsonModal()" 
+                    class="px-4 py-2.5 rounded-xl bg-[#282a2d] hover:bg-[#333537] text-xs font-medium text-[#c4c7c5] hover:text-white transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button 
+                    type="button" 
+                    onclick="handleApplyJson()" 
+                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-xs tracking-wide shadow-md transition-all cursor-pointer">
+                    Update Dashboard
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & INTERACTIVITY -->
+    <script>
+        // Default Ingested Candidate Payload
+        let currentPayload = {
+            "email": "wanchu2733@gmail.com",
+            "token_used": 2000000,
+            "time_spent": 3600,
+            "number_of_prompts": 16,
+            "credibility": 0.87
+        };
+
+        // Presets for Hackathon Demos
+        const demoPresets = {
+            critical: {
+                "email": "wanchu2733@gmail.com",
+                "token_used": 2000000,
+                "time_spent": 3600,
+                "number_of_prompts": 16,
+                "credibility": 0.87
+            },
+            moderate: {
+                "email": "sarah.dev@enterprise.io",
+                "token_used": 1150000,
+                "time_spent": 2700,
+                "number_of_prompts": 10,
+                "credibility": 0.64
+            },
+            blind: {
+                "email": "alex.turbo@fastmail.com",
+                "token_used": 4500000,
+                "time_spent": 900,
+                "number_of_prompts": 24,
+                "credibility": 0.38
+            }
+        };
+
+        // -------------------------------------------------------------
+        // FORMATTING HELPER FUNCTIONS
+        // -------------------------------------------------------------
+
+        // Formats seconds into HH:MM:SS or 1h 0m 0s
+        function formatSeconds(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds < 0) return '0s';
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${seconds}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        // Formats large numbers into compact units (2000000 -> 2.0M, 150000 -> 150.0K)
+        function formatCompactNumber(num) {
+            if (isNaN(num)) return '0';
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toLocaleString();
+        }
+
+        // Formats decimal to percentage string (0.87 -> 87%)
+        function formatPercent(decimal) {
+            if (isNaN(decimal)) return '0%';
+            return Math.round(decimal * 100) + '%';
+        }
+
+        // Generates candidate initials from email
+        function getInitials(email) {
+            if (!email) return 'CD';
+            const namePart = email.split('@')[0].replace(/[^a-zA-Z]/g, '');
+            if (namePart.length >= 2) {
+                return namePart.substring(0, 2).toUpperCase();
+            }
+            return (email.substring(0, 1) + 'C').toUpperCase();
+        }
+
+        // -------------------------------------------------------------
+        // DASHBOARD RENDER LOGIC
+        // -------------------------------------------------------------
+        function renderDashboard(data) {
+            // 1. Candidate Banner
+            const email = data.email || 'unknown@candidate.com';
+            document.getElementById('candidate-email').textContent = email;
+            document.getElementById('candidate-avatar').textContent = getInitials(email);
+
+            const timeSpentSec = data.time_spent || 0;
+            document.getElementById('banner-time-spent').textContent = formatSeconds(timeSpentSec);
+
+            const cred = typeof data.credibility === 'number' ? data.credibility : 0.5;
+            const credPct = Math.round(cred * 100);
+
+            // Status Badge & Verdict
+            const statusBadge = document.getElementById('candidate-status-badge');
+            const statusText = document.getElementById('candidate-status-text');
+            const bannerVerdict = document.getElementById('banner-verdict');
+
+            if (cred >= 0.8) {
+                statusBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300";
+                statusText.textContent = "High Critical Verification";
+                bannerVerdict.textContent = "Strong Recommendation (Hire)";
+                bannerVerdict.className = "text-sm font-bold text-emerald-400";
+            } else if (cred >= 0.55) {
+                statusBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-300";
+                statusText.textContent = "Moderate Verification";
+                bannerVerdict.textContent = "Requires Further Review";
+                bannerVerdict.className = "text-sm font-bold text-amber-400";
+            } else {
+                statusBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/40 text-rose-300";
+                statusText.textContent = "High Blind AI Reliance";
+                bannerVerdict.textContent = "Not Recommended (Blind AI)";
+                bannerVerdict.className = "text-sm font-bold text-rose-400";
+            }
+
+            // 2. Card 1: Credibility
+            document.getElementById('metric-credibility-val').textContent = credPct + '%';
+            document.getElementById('metric-credibility-gauge').textContent = credPct + '%';
+            
+            const gaugePath = document.getElementById('gauge-circle-path');
+            const dashOffset = 100 - credPct;
+            gaugePath.style.strokeDashoffset = dashOffset;
+
+            const credTag = document.getElementById('metric-credibility-tag');
+            if (cred >= 0.8) {
+                gaugePath.setAttribute('class', 'gauge-circle text-emerald-400');
+                credTag.textContent = 'High Human Verification';
+                credTag.className = 'text-xs font-semibold text-emerald-400';
+            } else if (cred >= 0.55) {
+                gaugePath.setAttribute('class', 'gauge-circle text-amber-400');
+                credTag.textContent = 'Moderate Verification';
+                credTag.className = 'text-xs font-semibold text-amber-400';
+            } else {
+                gaugePath.setAttribute('class', 'gauge-circle text-rose-400');
+                credTag.textContent = 'Blind AI Dependency';
+                credTag.className = 'text-xs font-semibold text-rose-400';
+            }
+
+            // 3. Card 2: AI Token Consumption
+            const tokens = data.token_used || 0;
+            const prompts = data.number_of_prompts || 1;
+            document.getElementById('metric-tokens-val').textContent = formatCompactNumber(tokens) + ' Tokens';
+            const avgTokensPerPrompt = Math.round(tokens / Math.max(1, prompts));
+            document.getElementById('metric-tokens-avg').textContent = `${formatCompactNumber(avgTokensPerPrompt)} tokens / prompt`;
+
+            // 4. Card 3: Prompt Interaction Count
+            document.getElementById('metric-prompts-val').textContent = `${prompts} Prompts`;
+            const avgSecBetweenPrompts = Math.round(timeSpentSec / Math.max(1, prompts));
+            document.getElementById('metric-prompts-avg').textContent = `Avg ~${formatSeconds(avgSecBetweenPrompts)} between prompts`;
+
+            // 5. Card 4: Total Duration
+            const totalMins = Math.round(timeSpentSec / 60);
+            document.getElementById('metric-time-val').textContent = `${totalMins} mins`;
+            document.getElementById('metric-time-formatted').textContent = `${timeSpentSec} seconds total`;
+            const timeWindowStatus = document.getElementById('metric-time-window-status');
+            if (timeSpentSec <= 5400) {
+                timeWindowStatus.textContent = "Within 90-min window";
+                timeWindowStatus.className = "text-emerald-400 font-medium";
+            } else {
+                timeWindowStatus.textContent = "Exceeded 90-min window";
+                timeWindowStatus.className = "text-amber-400 font-medium";
+            }
+
+            // 6. AI-Human Balance Bar
+            const blindPct = 100 - credPct;
+            document.getElementById('balance-ratio-text').textContent = `${credPct}:${blindPct}`;
+            
+            const humanBar = document.getElementById('bar-human-verification');
+            const blindBar = document.getElementById('bar-blind-ai');
+            humanBar.style.width = `${credPct}%`;
+            humanBar.innerHTML = `<span class="truncate">${credPct}% Human Verification</span>`;
+            blindBar.style.width = `${blindPct}%`;
+            blindBar.innerHTML = `<span class="truncate">${blindPct}% Blind</span>`;
+
+            document.getElementById('label-human-pct').textContent = `${credPct}%`;
+            document.getElementById('label-blind-pct').textContent = `${blindPct}%`;
+
+            // 7. Behavioral Highlights
+            document.getElementById('badge-prompt-quality').textContent = `${prompts} Prompts`;
+            document.getElementById('badge-token-overhead').textContent = `${formatCompactNumber(tokens)} Tokens`;
+            
+            if (cred >= 0.8) {
+                document.getElementById('text-prompt-quality').textContent = `Supplied precise architectural context across ${prompts} prompts rather than vague queries, enabling focused AI reasoning loops.`;
+            } else if (cred >= 0.55) {
+                document.getElementById('text-prompt-quality').textContent = `Balanced mix of high-context queries and quick prompts across ${prompts} iterations.`;
+            } else {
+                document.getElementById('text-prompt-quality').textContent = `Frequent one-liner prompts (${prompts} total) without sufficient verification or testing between iterations.`;
+            }
+
+            // 8. Recommendation Box
+            const recHeadline = document.getElementById('rec-headline');
+            const recBody = document.getElementById('rec-body');
+            const recIcon = document.getElementById('rec-icon');
+
+            if (cred >= 0.8) {
+                recIcon.textContent = '🟢';
+                recHeadline.textContent = 'Strong Candidate — Critical AI Collaborator';
+                recBody.textContent = `Candidate demonstrates deep technical knowledge by catching AI edge-case errors. Uses AI as a productivity multiplier while preserving rigorous architectural oversight.`;
+                document.getElementById('score-crit-thinking').textContent = '92/100';
+                document.getElementById('bar-crit-thinking').style.width = '92%';
+                document.getElementById('score-prompt-eff').textContent = '88/100';
+                document.getElementById('bar-prompt-eff').style.width = '88%';
+                document.getElementById('score-time-mgmt').textContent = '90/100';
+                document.getElementById('bar-time-mgmt').style.width = '90%';
+            } else if (cred >= 0.55) {
+                recIcon.textContent = '🟡';
+                recHeadline.textContent = 'Moderate Match — Requires Technical Deep-Dive';
+                recBody.textContent = `Candidate successfully utilized AI assistance to complete the task, but accepted several sub-optimal code patterns without challenge. Recommend focused live interview on debugging.`;
+                document.getElementById('score-crit-thinking').textContent = '65/100';
+                document.getElementById('bar-crit-thinking').style.width = '65%';
+                document.getElementById('score-prompt-eff').textContent = '70/100';
+                document.getElementById('bar-prompt-eff').style.width = '70%';
+                document.getElementById('score-time-mgmt').textContent = '75/100';
+                document.getElementById('bar-time-mgmt').style.width = '75%';
+            } else {
+                recIcon.textContent = '🔴';
+                recHeadline.textContent = 'High Risk — Blind AI Dependency';
+                recBody.textContent = `Candidate exhibited high reliance on raw AI output without validating logic or syntax errors. High token consumption with low code verification indicates vulnerable problem-solving habits.`;
+                document.getElementById('score-crit-thinking').textContent = '38/100';
+                document.getElementById('bar-crit-thinking').style.width = '38%';
+                document.getElementById('score-prompt-eff').textContent = '45/100';
+                document.getElementById('bar-prompt-eff').style.width = '45%';
+                document.getElementById('score-time-mgmt').textContent = '50/100';
+                document.getElementById('bar-time-mgmt').style.width = '50%';
+            }
+
+            // 9. Raw JSON Display
+            renderRawJsonDisplay(data);
+        }
+
+        // Syntax highlights and renders raw JSON
+        function renderRawJsonDisplay(jsonObj) {
+            const rawEl = document.getElementById('raw-json-display');
+            const formatted = JSON.stringify(jsonObj, null, 2);
+            
+            // Syntax highlight regex
+            const highlighted = formatted.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key font-semibold';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean font-bold';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null font-italic';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+            rawEl.innerHTML = highlighted;
+        }
+
+        // -------------------------------------------------------------
+        // INTERACTIVE MODAL & PAYLOAD EDITING
+        // -------------------------------------------------------------
+        function openJsonModal() {
+            const modal = document.getElementById('json-modal');
+            const textarea = document.getElementById('json-input');
+            const errorMsg = document.getElementById('modal-error-msg');
+            
+            errorMsg.classList.add('hidden');
+            textarea.value = JSON.stringify(currentPayload, null, 2);
+            modal.classList.remove('hidden');
+            textarea.focus();
+        }
+
+        function closeJsonModal() {
+            document.getElementById('json-modal').classList.add('hidden');
+        }
+
+        function loadPreset(key) {
+            if (demoPresets[key]) {
+                document.getElementById('json-input').value = JSON.stringify(demoPresets[key], null, 2);
+                document.getElementById('modal-error-msg').classList.add('hidden');
+            }
+        }
+
+        function handleApplyJson() {
+            const textarea = document.getElementById('json-input');
+            const errorMsg = document.getElementById('modal-error-msg');
+            const errorText = document.getElementById('modal-error-text');
+
+            try {
+                const parsed = JSON.parse(textarea.value);
+                if (typeof parsed !== 'object' || parsed === null) {
+                    throw new Error('Payload must be a valid JSON object.');
+                }
+                currentPayload = parsed;
+                renderDashboard(currentPayload);
+                closeJsonModal();
+            } catch (err) {
+                errorText.textContent = err.message || 'Invalid JSON syntax.';
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        // -------------------------------------------------------------
+        // ACCORDION & ACTIONS
+        // -------------------------------------------------------------
+        function toggleRawJsonAccordion() {
+            const panel = document.getElementById('raw-json-panel');
+            const icon = document.getElementById('accordion-icon');
+            const label = document.getElementById('accordion-toggle-label');
+
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                label.textContent = 'Hide Payload';
+            } else {
+                panel.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+                label.textContent = 'View Payload';
+            }
+        }
+
+        function copyRawJson() {
+            const jsonText = JSON.stringify(currentPayload, null, 2);
+            navigator.clipboard.writeText(jsonText).then(() => {
+                const btnText = document.getElementById('copy-json-btn-text');
+                const orig = btnText.textContent;
+                btnText.textContent = 'Copied!';
+                setTimeout(() => {
+                    btnText.textContent = orig;
+                }, 2000);
+            });
+        }
+
+        function handleAdvanceCandidate() {
+            alert(`Candidate ${currentPayload.email} advanced to Technical Interview round! Assessment payload saved.`);
+        }
+
+        function handleExportSummary() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentPayload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `HR_Assessment_${currentPayload.email || 'Candidate'}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // -------------------------------------------------------------
+        // INITIALIZE ON LOAD
+        // -------------------------------------------------------------
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if there is a verified email from studio/index in localStorage
+            const savedEmail = localStorage.getItem('user_email');
+            if (savedEmail) {
+                currentPayload.email = savedEmail;
+            }
+            renderDashboard(currentPayload);
+        });
+
+        // Close modal on Escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeJsonModal();
+            }
+        });
+    </script>
+</body>
+</html>
