@@ -1,0 +1,19 @@
+{
+  "name": "the-talent-market-is-broken",
+  "version": "1.0.0",
+  "description": "Interactive AI Talent Assessment & Studio Platform for Hackathon",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3000 .",
+    "dev": "npx serve -l 3000 .",
+    "serve": "python -m http.server 3000"
+  },
+  "keywords": [
+    "hackathon",
+    "talent",
+    "ai-assessment",
+    "gemini"
+  ],
+  "author": "",
+  "license": "MIT"
+}
